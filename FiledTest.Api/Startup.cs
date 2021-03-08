@@ -1,18 +1,15 @@
 using FiledTest.Domain.Data;
+using FiledTest.Domain.Interfaces.Services;
+using FiledTest.Domain.Maps;
+using FiledTest.Domain.Services;
+using FiledTest.Domain.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace FiledTest.Api
 {
@@ -28,8 +25,11 @@ namespace FiledTest.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddAutoMapper(typeof(MappingProfiles));
             services.AddDbContext<PaymentDbContext>(options => options.UseSqlite("Data source=ProcessPayment.DB"));
             services.AddControllers();
+            services.AddScoped<IPaymentService, PaymentService>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "FiledTest.Api", Version = "v1" });
@@ -37,7 +37,7 @@ namespace FiledTest.Api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, PaymentDbContext context)
         {
             if (env.IsDevelopment())
             {
@@ -51,7 +51,7 @@ namespace FiledTest.Api
             app.UseRouting();
 
             app.UseAuthorization();
-
+            Preseeder.SeederPaymentState(context).Wait();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
