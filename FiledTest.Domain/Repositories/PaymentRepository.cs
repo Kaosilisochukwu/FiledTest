@@ -23,8 +23,9 @@ namespace FiledTest.Domain.Repositories
         {
             var currentPayment = await _context.Payments.Where(x => x.Id == id)
                               .Include(x => x.PaymentState).FirstOrDefaultAsync();
-
-            currentPayment.PaymentState.Title = "processed";
+            var currntPaymentState = _context.PaymentStates.FirstOrDefault(state => state.Title == "processed");
+            currentPayment.PaymentState = currntPaymentState;
+            currentPayment.PaymentStateId = currntPaymentState.Id;
             _context.Update(currentPayment);
             await _context.SaveChangesAsync();
             return currentPayment;

@@ -28,12 +28,12 @@ namespace FiledTest.Domain.Repositories
 
         public async Task<int> SaveData(T t)
         {
+                if (t != null)
+                {
+                    await _entitySet.AddAsync(t);
+                }
+                return await _context.SaveChangesAsync();
 
-            if (t != null)
-            {
-                await _entitySet.AddAsync(t);
-            }
-            return await _context.SaveChangesAsync();
         }
 
         public async Task<int> UpdateData(T t)
