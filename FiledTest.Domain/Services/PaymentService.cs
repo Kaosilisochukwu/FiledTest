@@ -1,4 +1,5 @@
 ﻿using FiledTest.Domain.Data;
+using FiledTest.Domain.Interfaces.Repository;
 using FiledTest.Domain.Interfaces.Services;
 using FiledTest.Domain.Models;
 using FiledTest.Domain.Repositories;
@@ -12,19 +13,19 @@ namespace FiledTest.Domain.Services
         private readonly ICheapPaymentGateway _cheapPaymentGateway;
         private readonly IExpensivePaymentGateway _expensivePaymentGateway;
         private readonly IPremiumPaymentGateway _premiumPaymentGateway;
-        private readonly PaymentDbContext _context;
+        private readonly IPaymentStateRepository _paymentStateRepo;
 
-        public PaymentService(PaymentDbContext context)
+        public PaymentService(ICheapPaymentGateway cheapPaymentGateway, IExpensivePaymentGateway expensivePaymentGateway,
+                                IPremiumPaymentGateway premiumPaymentGateway, IPaymentStateRepository paymentStateRepo)
         {
-            var paymentRepository = new PaymentRepository(context);
-            _cheapPaymentGateway = new CheapPaymentService(paymentRepository);
-            _expensivePaymentGateway = new ExpensivePaymentService(paymentRepository);
-            _premiumPaymentGateway = new PremiumPaymentService(paymentRepository);
-            _context = context;
+            _cheapPaymentGateway = cheapPaymentGateway;
+            _expensivePaymentGateway = expensivePaymentGateway;
+            _premiumPaymentGateway = premiumPaymentGateway;
+            _paymentStateRepo = paymentStateRepo;
         }
         public async Task<Payment> ProcessPayment(Payment payment)
         {
-            payment.PaymentState = _context.PaymentStates.FirstOrDefault(state => state.Title == "pending");
+            payment.PaymentState = await _paymentStateRepo.GetData(1);
             if(payment.Amount < 20)
             {
                 var men = await _cheapPaymentGateway.ProcessPayment(payment);
@@ -53,7 +54,7 @@ namespace FiledTest.Domain.Services
                     }
                     numberOfTrials += 1;
                 }
-                payment.PaymentState = _context.PaymentStates.FirstOrDefault(state => state.Title == "failed");
+                payment.PaymentState = await _paymentStateRepo.GetData(3);
                 return payment;
             }
         }

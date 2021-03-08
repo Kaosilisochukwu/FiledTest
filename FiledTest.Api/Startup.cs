@@ -1,6 +1,8 @@
 using FiledTest.Domain.Data;
+using FiledTest.Domain.Interfaces.Repository;
 using FiledTest.Domain.Interfaces.Services;
 using FiledTest.Domain.Maps;
+using FiledTest.Domain.Repositories;
 using FiledTest.Domain.Services;
 using FiledTest.Domain.Utilities;
 using Microsoft.AspNetCore.Builder;
@@ -30,7 +32,12 @@ namespace FiledTest.Api
             services.AddAutoMapper(typeof(MappingProfiles));
             services.AddDbContext<PaymentDbContext>(options => options.UseSqlite("Data source=ProcessPayment.DB"));
             services.AddControllers();
+            services.AddScoped<ICheapPaymentGateway, CheapPaymentService>();
+            services.AddScoped<IExpensivePaymentGateway, ExpensivePaymentService>();
+            services.AddScoped<IPremiumPaymentGateway, PremiumPaymentService>();
+            services.AddScoped<IPaymentStateRepository, PaymentStateRepository>();
             services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "FiledTest.Api", Version = "v1" });
