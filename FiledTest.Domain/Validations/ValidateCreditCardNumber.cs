@@ -19,7 +19,7 @@ namespace FiledTest.Domain.Validations
             else
             {
                 return new ValidationResult
-                    ("Please input a valid Credit card number");
+                    ("Credit card number length must be equal to 16 and must contain only digits");
             }
         }
     }

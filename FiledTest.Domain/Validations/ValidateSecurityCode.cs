@@ -11,14 +11,15 @@ namespace FiledTest.Domain.Validations
         protected override ValidationResult
                IsValid(object value, ValidationContext validationContext)
         {
-            if (value.ToString() == null || value.ToString().Length == 3)
+            if (int.TryParse(value.ToString(), out _) && (value.ToString() == null 
+                            || value.ToString().Length == 3 || value.ToString() == string.Empty))
             {
                 return ValidationResult.Success;
             }
             else
             {
                 return new ValidationResult
-                    ("Enter a valid security code");
+                    ("Security code must either be empty or must be made of digits of 3 characters");
             }
         }
     }

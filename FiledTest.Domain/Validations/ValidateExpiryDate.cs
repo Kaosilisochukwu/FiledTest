@@ -12,14 +12,14 @@ namespace FiledTest.Domain.Validations
                 IsValid(object value, ValidationContext validationContext)
         {   
             DateTime _expiryDate = DateTime.Parse(value.ToString()); 
-            if (_expiryDate <= DateTime.Now)
+            if (_expiryDate > DateTime.Now)
             {
                 return ValidationResult.Success;
             }
             else
             {
                 return new ValidationResult
-                    ("Date can not be in the past");
+                    ("Expiration Date cannot be in the past");
             }
         } 
     }
